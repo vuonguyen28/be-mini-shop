@@ -1,4 +1,5 @@
-name: Deploy FE+BE to Azure App Service
+name: Deploy to Azure Web App
+
 on:
   push:
     branches: [ main ]
@@ -9,35 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Chọn Node khớp với App Service (ảnh bạn là Node 22 LTS)
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'  
+          node-version: '22'
 
-      # Build FE
-      - name: Install & build frontend
-        working-directory: frontend
-        run: |
-          npm ci
-          npm run build
+      - run: npm ci
+      - run: npm run build --if-present
 
-      # Build BE
-      - name: Install & build backend
-        working-directory: backend
-        run: |
-          npm ci
-          npm run build --if-present
+      # (tuỳ chọn) nếu cần MONGODB_URI ở build-time
+      # - run: echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> $GITHUB_ENV
 
-      # Chép FE build vào backend để BE serve static
-      - name: Bundle FE into backend
-        run: |
-          mkdir -p backend/public
-          # đổi 'dist' thành 'build' nếu FE xuất ra 'build'
-          cp -r frontend/dist/* backend/public/ 2>/dev/null || cp -r frontend/build/* backend/public/
-
-      # Deploy CHỈ thư mục backend
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: api-mimi-bear              # tên Web App của bạn
+          app-name: api-mimi-bear
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: backend
+          package: .
