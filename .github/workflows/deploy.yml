@@ -5,9 +5,14 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+concurrency:
+  group: deploy-api-mimi-bear
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: ✅ Checkout
         uses: actions/checkout@v4
@@ -15,7 +20,7 @@ jobs:
       - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22'    # khớp Runtime trên App Service
           cache: 'npm'
 
       - name: 📦 Install deps
@@ -27,6 +32,6 @@ jobs:
       - name: 🚀 Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: api-mimi-bear
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: .
+          app-name: api-mimi-bear                           # PHẢI đúng y như msdeploySite trong XML
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}  # secret = toàn bộ XML
+          package: .                                        # BE ở root repo
