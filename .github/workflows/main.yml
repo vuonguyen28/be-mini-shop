@@ -7,29 +7,23 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Use Node.js 22 (khớp App Service)
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
-      # Cài dependencies
       - name: Install deps
         run: npm ci
 
-      # Build (nếu có TypeScript hoặc script build)
       - name: Build
         run: npm run build --if-present
 
-      # Deploy lên App Service
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: api-mimi-bear                # TÊN Web App trong Azure (không phải domain dài)
+          app-name: api-mimi-bear                 # <-- PHẢI trùng msdeploySite trong XML
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: .                              # deploy toàn bộ repo (BE-only)
+          package: .
