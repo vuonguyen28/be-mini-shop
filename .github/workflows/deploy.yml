@@ -6,27 +6,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: ✅ Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22'    # khớp Runtime trên Azure
+          node-version: '22'
           cache: 'npm'
 
-      - name: 📦 Install deps
-        run: npm ci
-
-      - name: 🛠 Build (optional)
-        run: npm run build --if-present
+      - run: npm ci
+      - run: npm run build --if-present
 
       - name: 🚀 Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v2
         with:
           app-name: api-mimi-bear
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: ./publish
+          package: .
