@@ -8,7 +8,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: ✅ Checkout
         uses: actions/checkout@v4
@@ -24,12 +23,6 @@ jobs:
 
       - name: 🛠 Build (optional)
         run: npm run build --if-present
-
-      # Đăng nhập Azure bằng publish profile
-      - name: 🔑 Azure Login
-        uses: azure/login@v2
-        with:
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
 
       - name: 🚀 Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
