@@ -1,0 +1,32 @@
+name: 🚀 Deploy Node.js API to Azure Web App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ Checkout source
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'   # khớp Runtime trên App Service
+          cache: 'npm'
+
+      - name: 📦 Install deps
+        run: npm ci
+
+      - name: 🛠 Build (optional)
+        run: npm run build --if-present
+
+      - name: 🚀 Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: api-mimi-bear
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
