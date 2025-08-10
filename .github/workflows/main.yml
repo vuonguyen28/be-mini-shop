@@ -1,4 +1,4 @@
-name: Deploy to Azure Web App
+name: Deploy BE to Azure App Service
 
 on:
   push:
@@ -7,23 +7,29 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      # Chọn Node khớp với App Service (ảnh bạn là Node 22 LTS)
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22 (khớp App Service)
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
 
-      - run: npm ci
-      - run: npm run build --if-present
+      # Cài dependencies
+      - name: Install deps
+        run: npm ci
 
-      # (tuỳ chọn) nếu cần MONGODB_URI ở build-time
-      # - run: echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> $GITHUB_ENV
+      # Build (nếu có TypeScript hoặc script build)
+      - name: Build
+        run: npm run build --if-present
 
+      # Deploy lên App Service
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: api-mimi-bear
+          app-name: api-mimi-bear                # TÊN Web App trong Azure (không phải domain dài)
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: .
+          package: .                              # deploy toàn bộ repo (BE-only)
